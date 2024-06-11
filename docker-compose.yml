@@ -1,0 +1,32 @@
+version : "3.7"
+services :
+  proyectos-micro :
+    container_name : proyectos-micro
+    image : proyectos-micro:v1
+    build :
+      context: .
+    ports : 
+      - "4002"
+    networks :
+      - proyectos-app
+
+  proyectos-micro-2 :
+    container_name : proyectos-micro-2
+    image : proyectos-micro:v1
+    ports : 
+      - "4002"
+    networks :
+      - proyectos-app  
+
+  balanceador :
+    container_name : balanceador
+    image : balanceador:v1
+    build :
+      context: ./balanceador
+    ports : 
+      - "4003:80"
+    networks :
+      - proyectos-app
+
+networks :
+  proyectos-app :
