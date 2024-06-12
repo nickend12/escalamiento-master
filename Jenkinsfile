@@ -1,45 +1,39 @@
-pipeline{
-
+pipeline {
     agent any
 
     stages {
-
-        stages('clonacion de repositorio'){
-            steps{
-
-                //clon repo
-
+        stage('Clonar el repositorio'){
+            steps {
+                git branch: 'main', credentialsId: 'escalamiento-master', url: 'https://github.com/nickend12/escalamiento-master.git'
             }
-
         }
-
-        stages('construccion imagen de docker'){
-            steps{
-
-                //coman docker para build
-
+        stage('Construir imagen de Docker'){
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
+                    ]) {
+                        docker.build('proyectos-micro:v1', '--build-arg MONGO_URI=${MONGO_URI} .')
+                    
+                    }
+                }
             }
-
         }
+        stage('Desplegar contenedores Docker'){
+            steps {
+                script {
+                        withCredentials([
+                        string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
+                    ]) {
+                    sh """
+                        sed 's|\\${MONGO_URI}|${MONGO_URI}|g' docker-compose.yml > docker-compose-update.yml
+                        docker-compose -f docker-compose-update.yml up -d
+                    """
+                    }
 
-        stages('despliegue containers'){
-            steps{
-
-                //docker compose up -d
-                
+                }
             }
-
         }
-
     }
-
-    post{
-
-        always{
-            //envie mensaje confirmacion
-        }
-
-    }
-
-    
 }
+    
