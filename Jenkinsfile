@@ -2,41 +2,44 @@ pipeline {
     agent any
 
     stages {
-        stage('Clonar el repositorio') {
+        stage('Clonar el Repositorio'){
             steps {
-                git branch: 'main', credentialsId: 'escalamiento-master', url: 'https://github.com/nickend12/escalamiento-master.git'
-            }
+                git branch: 'main', url: 'https://github.com/nickend12/escalamiento-master.git'
         }
-        stage('Construir imagen de Docker') {
+        stage('Construir imagen de Docker'){
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')]) {
-                        docker.build('proyectos-micro:v1', "--build-arg MONGO_URI=${MONGO_URI} .")
+                    withCredentials([
+                        string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
+                    ]) {
+                        docker.build('proyectos-micro:v1', '--build-arg MONGO_URI=${MONGO_URI} .')
                     }
                 }
             }
         }
-        stage('Desplegar contenedores Docker') {
+        stage('Desplegar contenedores Docker'){
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')]) {
-                        sh """
-                            sed 's|\\${MONGO_URI}|${MONGO_URI}|g' docker-compose.yml > docker-compose-update.yml
-                            docker-compose -f docker-compose-update.yml up -d
-                        """
+                    withCredentials([
+                            string(credentialsId: 'MONGO_URI', variable: 'MONGO_URI')
+                    ]) {
+                        sh 'docker-compose up -d'
                     }
                 }
             }
         }
     }
+
     post {
         always {
             emailext (
                 subject: "Status del build: ${currentBuild.currentResult}",
-                body: "Completado el build. Puede detallar en: ${env.BUILD_URL}",
-                to: "oscar.garciajg@est.iudigital.edu.co",  
+                body: "Se ha completado el build. Puede detallar en: ${env.BUILD_URL}",
+                to: "oscar.garciajg@est.iudigital.edu.co",
                 from: "jenkins@iudigital.edu.co"
             )
         }
     }
+}
+
 }

@@ -9,7 +9,7 @@ services :
       - "4002"
     environment:
       - MONGO_URI=$(MONGO_URI)
-      - PORT=
+      - PORT=4002
     networks :
       - proyectos-app  
       
@@ -18,7 +18,10 @@ services :
     image : proyectos-micro:v1
     ports : 
       - "4002"
-    networks :
+  environment:
+      - MONGO_URI=$(MONGO_URI)
+      - PORT=4002
+  networks :
       - proyectos-app     
 
   balanceador :
