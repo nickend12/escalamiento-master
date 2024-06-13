@@ -7,22 +7,22 @@ services :
       context: .
     ports : 
       - "4002"
-    environment:
-      - MONGO_URI=$(MONGO_URI)
-      - PORT=4002
     networks :
-      - proyectos-app  
-      
+      - proyectos-app
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=4002
+
   proyectos-micro-2 :
     container_name : proyectos-micro-2
     image : proyectos-micro:v1
     ports : 
       - "4002"
-  environment:
-      - MONGO_URI=$(MONGO_URI)
+    networks :
+      - proyectos-app
+    environment:
+      - MONGO_URI=${MONGO_URI}
       - PORT=4002
-  networks :
-      - proyectos-app     
 
   balanceador :
     container_name : balanceador
